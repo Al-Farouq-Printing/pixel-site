@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pixel pricing – first-time setup</title>
+<style>body{font-family:system-ui,sans-serif;max-width:480px;margin:30px auto;padding:0 16px;line-height:1.5}
+input,button{width:100%;padding:12px;margin:6px 0;font-size:16px;box-sizing:border-box;border-radius:8px;border:1px solid #bbb}
+button{background:#d4163c;color:#fff;border:0;font-weight:700}pre{white-space:pre-wrap;background:#eee;padding:10px;border-radius:8px;min-height:40px}</style></head>
+<body>
+<h2>Pixel pricing – first-time setup</h2>
+<p>Enter the admin email and password. They go only to Google (Firebase), nothing else. <b>Delete this page after use.</b></p>
+<input id="email" type="email" placeholder="Email" value="has035607@gmail.com">
+<input id="pass" type="password" placeholder="Password">
+<button id="go">Create starting settings</button>
+<pre id="log"></pre>
+<script>
+const PROJECT = 'pixel-pricing', KEY = 'AIzaSyBphBLTqDG5nMZq095RJkOHqZICRjBe3yk';
+const DEFAULTS = {"sheets": [{"n": "35×50", "w": 350, "h": 500}, {"n": "33×48.5", "w": 330, "h": 485}], "geo": {"grip": 10, "edge": 5, "glue": 15, "gap": 3, "tf": 1, "tuck": 13, "ear": 0.7}, "papers": [{"id": "bris250", "name": "Coated Bristol 250 g", "gsm": 250, "ton": 40000}, {"id": "bris270", "name": "Coated Bristol 270 g", "gsm": 270, "ton": 40000}, {"id": "bris300", "name": "Coated Bristol 300 g", "gsm": 300, "ton": 40000}, {"id": "bris350", "name": "Coated Bristol 350 g", "gsm": 350, "ton": 40000}, {"id": "dup250", "name": "Duplex 250 g", "gsm": 250, "ton": 28000}, {"id": "dup270", "name": "Duplex 270 g", "gsm": 270, "ton": 28000}, {"id": "dup300", "name": "Duplex 300 g", "gsm": 300, "ton": 28000}, {"id": "dup350", "name": "Duplex 350 g", "gsm": 350, "ton": 28000}], "colors": [{"id": "cmyk1", "name": "1 colour CMYK", "plates": 1, "pantone": false}, {"id": "cmyk2", "name": "2 colours CMYK", "plates": 2, "pantone": false}, {"id": "cmyk3", "name": "3 colours CMYK", "plates": 3, "pantone": false}, {"id": "cmyk4", "name": "4 colours CMYK", "plates": 4, "pantone": false}, {"id": "pan1", "name": "1 colour Pantone", "plates": 1, "pantone": true}, {"id": "pan2", "name": "2 colours Pantone", "plates": 2, "pantone": true}, {"id": "pan3", "name": "3 colours Pantone", "plates": 3, "pantone": true}, {"id": "pan4", "name": "4 colours Pantone", "plates": 4, "pantone": true}], "coat": [{"id": "none", "name": "None · بدون", "type": "sheet", "rate": 0}, {"id": "lamG", "name": "Gloss lamination · سولفان لامع", "type": "area", "rate": 3}, {"id": "lamM", "name": "Matt lamination · سولفان مط", "type": "area", "rate": 3}, {"id": "varG", "name": "Gloss varnish · ورنيش لامع", "type": "sheet", "rate": 0.25}, {"id": "varM", "name": "Matt varnish · ورنيش مط", "type": "sheet", "rate": 0.25}, {"id": "uv", "name": "UV · يو في", "type": "area", "rate": 3}], "services": [{"id": "spotuv", "name": "Spot UV · سبوت UV", "fixed": 200, "per_sheet": 0.4375}, {"id": "emboss", "name": "Embossing · بصمة", "fixed": 1500, "per_sheet": 1.5}, {"id": "foil", "name": "Foil · كفراج", "fixed": 2000, "per_sheet": 0.2}, {"id": "water", "name": "Watermark · علامة مائية", "fixed": 300, "per_sheet": 0.25}, {"id": "metal", "name": "Metalized · ميتاليز", "fixed": 0, "per_sheet": 0.6}], "rates": {"plate": 50, "print_per_colour": 0.1, "pantone_extra": 0, "die_tool": 2000, "die_per_sheet": 0.15, "glue_per_box": 0.06, "area_div": 7000, "waste_pct": 5, "makeready": 100, "min_sheets": 2000, "min_glue": 4000}, "transport": {"on": true, "price": 150}, "tiers": [{"from": 1000, "to": 4000, "margin": 35}, {"from": 4001, "to": 7000, "margin": 30}, {"from": 7001, "to": 10000, "margin": 25}, {"from": 10001, "to": null, "margin": 20}]};
+
+// private settings (costs + margins) -> public selling-price table (margin folded into every rate per quantity tier)
+function buildPublic(c) {
+  const r = c.rates, tr = c.transport;
+  return { v: 1, geo: c.geo, sheets: c.sheets, min_qty: c.tiers[0].from,
+    rates: { area_div: r.area_div, waste_pct: r.waste_pct, makeready: r.makeready, min_sheets: r.min_sheets, min_glue: r.min_glue },
+    papers: c.papers.map(p => ({ id: p.id, name: p.name, gsm: p.gsm })), colors: c.colors,
+    coat: c.coat.map(x => ({ id: x.id, name: x.name, type: x.type })), services: c.services.map(s => ({ id: s.id, name: s.name })),
+    transport_on: !!tr.on,
+    tiers: c.tiers.map(t => { const k = 1 + t.margin / 100; return { from: t.from, to: t.to,
+      r: { plate: r.plate * k, print_per_colour: r.print_per_colour * k, pantone_extra: r.pantone_extra * k, die_tool: r.die_tool * k, die_per_sheet: r.die_per_sheet * k, glue_per_box: r.glue_per_box * k, transport: tr.price * k },
+      ton: Object.fromEntries(c.papers.map(p => [p.id, p.ton * k])), coat: Object.fromEntries(c.coat.map(x => [x.id, x.rate * k])),
+      svc: Object.fromEntries(c.services.map(s => [s.id, { fixed: s.fixed * k, per_sheet: s.per_sheet * k }])) }; }) };
+}
+const $ = id => document.getElementById(id);
+const log = t => { $('log').textContent += t + '\n'; };
+const doc = n => `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents/config/${n}`;
+const put = (n, obj, H) => fetch(doc(n) + '?updateMask.fieldPaths=json', { method: 'PATCH', headers: H,
+  body: JSON.stringify({ fields: { json: { stringValue: JSON.stringify(obj) } } }) });
+
+$('go').onclick = async () => {
+  $('log').textContent = '';
+  try {
+    let r = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${KEY}`, { method: 'POST',
+      headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: $('email').value.trim(), password: $('pass').value, returnSecureToken: true }) });
+    let j = await r.json();
+    if (!r.ok) throw new Error((j.error && j.error.message) || r.status);
+    const H = { 'Content-Type': 'application/json', Authorization: 'Bearer ' + j.idToken };
+    log('Signed in OK');
+    let priv = DEFAULTS;
+    r = await fetch(doc('private'), { headers: H });
+    if (r.status === 200) {
+      priv = JSON.parse((await r.json()).fields.json.stringValue);
+      log('Your settings already exist - they were kept; only the website table is republished.');
+    } else if (r.status === 404) {
+      r = await put('private', DEFAULTS, H);
+      if (!r.ok) throw new Error('private: ' + r.status + ' ' + await r.text());
+      log('Starting settings created.');
+    } else throw new Error('private: ' + r.status + ' ' + await r.text());
+    r = await put('public', buildPublic(priv), H);
+    if (!r.ok) throw new Error('public: ' + r.status + ' ' + await r.text());
+    log('Website price table published. DONE - open your site now.');
+  } catch (e) { log('Error: ' + e.message); }
+};
+</script></body></html>

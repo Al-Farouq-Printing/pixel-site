@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pricing – Pixel</title>
+<style>
+:root{--bg:#ebebee;--card:#e2e2e6;--field:#f1f1f3;--line:#d3d3d8;--text:#1d1d22;--muted:#6b6b75;--red:#d4163c;--red-d:#b01030}
+@media (prefers-color-scheme:dark){:root{--bg:#17171a;--card:#232327;--field:#2c2c31;--line:#3a3a40;--text:#f2f2f4;--muted:#9a9aa5}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:14px 5vw}
+.logo{font-size:26px;font-weight:800;color:var(--text)}.logo b{color:var(--red)}
+nav{display:flex;gap:20px;flex-wrap:wrap}
+nav a{color:var(--text);font-size:14px;padding:6px 0;border-bottom:2px solid transparent}
+nav a.on{border-color:var(--red);color:var(--red)}
+.btn{background:var(--red);color:#fff;border:0;border-radius:8px;padding:12px 20px;font-weight:700;font-size:14px;cursor:pointer;display:inline-block}
+main{max-width:1100px;margin:10px auto 60px;padding:0 5vw}
+h1{font-size:26px;margin:10px 0 22px}
+.grid{display:grid;grid-template-columns:1.1fr 1fr;grid-template-areas:"pv fm" "pv pr";gap:0 24px;align-items:start}
+.card{background:var(--card);border-radius:14px;padding:22px;margin-bottom:24px}
+.card h2{margin:0 0 14px;font-size:20px}
+label{display:block;font-size:12px;color:var(--muted);margin:14px 0 6px}
+input,select{width:100%;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:11px;font-size:14px;color:var(--text);font-family:inherit}
+input:focus,select:focus{outline:2px solid var(--red);outline-offset:-1px}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.lbl{font-size:12px;color:var(--muted)}
+.price{font-size:42px;font-weight:800;color:var(--red);line-height:1.1;margin:4px 0}
+.err{color:var(--red);font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px}
+td,th{padding:7px 4px;border-bottom:1px solid var(--line);text-align:left}
+td:last-child,th:last-child{text-align:right}
+tr.best td{color:var(--red);font-weight:700}
+tr.tot td{font-weight:700;border-top:2px solid var(--line)}
+svg{width:100%;height:auto;max-height:560px;display:block;margin-top:10px}
+.sh{fill:var(--field);stroke:var(--muted);stroke-width:1}
+.gr{fill:var(--red);opacity:.18}
+.us{fill:none;stroke:var(--muted);stroke-dasharray:4 3;stroke-width:.8}
+.bx{fill:var(--card);stroke:var(--red);stroke-width:.8}
+.tg{fill:var(--red);opacity:.4;stroke:var(--red);stroke-width:.6}
+.ln{fill:var(--red);opacity:.5}
+.tn{fill:var(--red);font-weight:800}.tl{fill:var(--text);font-weight:700}.tp{fill:var(--muted)}
+details summary{cursor:pointer;font-weight:700;font-size:16px}
+.cfg{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.cfg h3{grid-column:1/-1;font-size:13px;margin:16px 0 0;color:var(--red)}
+.tier{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;grid-column:1/-1}
+.stage{height:330px;perspective:900px;display:flex;align-items:center;justify-content:center;touch-action:none;cursor:grab;background:var(--field);border-radius:12px;overflow:hidden}
+#box{position:relative;width:0;height:0;transform-style:preserve-3d}
+.face{position:absolute;left:0;top:0;transform-style:preserve-3d}
+.face .out,.face .in{position:absolute;inset:0;backface-visibility:hidden;border:1px solid rgba(0,0,0,.3);overflow:hidden}
+.face .out{background:#f1e7d6}.face .out.art{background:var(--art) center/cover no-repeat}
+.face .in{background:#e4d8c2;transform:rotateY(180deg)}
+.f-right .out{filter:brightness(.9)}.f-left .out{filter:brightness(.82)}.f-back .out{filter:brightness(.8)}.f-bottom .out{filter:brightness(.7)}.f-lid .out{filter:brightness(1.06)}
+#hinge{position:absolute;left:0;top:0;transform-style:preserve-3d;transition:transform .8s}
+#flat{display:none;position:relative}
+.fp{position:absolute;box-sizing:border-box;background:#f1e7d6;border:1px solid rgba(0,0,0,.35)}
+.fp.art{background:var(--art) center/cover no-repeat}.fp.flap{background:#e6d9c0}.fp.glue{background:#ddd0b6}
+.modes{margin:0 0 12px}
+#svc label,#trBox label{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:14px;color:var(--text)}#svc input,#trBox input{width:auto}
+.fp.tuck{border-radius:14px 14px 0 0}.fp.tuckb{border-radius:0 0 14px 14px}
+.dm{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.9);color:#111;padding:1px 6px;border-radius:4px;font-weight:700;font-size:11px;white-space:nowrap}
+.dm.v{bottom:auto;top:50%;left:4px;transform:translateY(-50%)}
+.ph{position:absolute;top:38%;left:0;right:0;text-align:center;color:#8a7f6e;font-weight:700;font-size:13px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px}
+.chips span{background:var(--field);border:1px solid var(--line);border-radius:20px;padding:5px 12px;font-size:13px;font-weight:700}
+.views{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.views button{background:var(--field);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 14px;font-size:13px;cursor:pointer}
+.views button.on{background:var(--red);color:#fff;border-color:var(--red)}
+.own{display:none}body.owner .own{display:block}body.owner table.own{display:table}
+@media(max-width:800px){.grid{grid-template-columns:1fr;grid-template-areas:"fm" "pv" "pr"}}
+</style>
+</head>
+<body>
+<header>
+  <!-- replace this header with your site's own header include -->
+  <a class="logo" href="index.php" style="text-decoration:none"><b>p</b>ixel</a>
+  <nav><a href="index.php">Home</a><a href="about.php">About</a><a href="categories.php">Categories ▾</a><a href="portfolio.php">Portfolio</a><a href="contact.php">Contact Us</a><a href="pricing.php" class="on">Pricing</a></nav>
+  <a class="btn" href="contact.php" style="text-decoration:none">Get a quote</a>
+</header>
+
+<main>
+<h1>Pricing</h1>
+<div class="grid">
+  <div class="card" style="grid-area:pv">
+    <h2>Your box in 3D</h2>
+    <div class="views modes" id="modes"><button data-m="closed" class="on">Closed</button><button data-m="flat">Open (unfolded)</button></div>
+    <div class="stage" id="stage"><div id="box"></div><div id="flat"></div></div>
+    <div class="chips" id="chips"></div>
+    <div class="views" id="views"><button data-v="front">Front</button><button data-v="side">Side</button><button data-v="top">Top</button><button id="spinBtn">Spin</button></div>
+    <label>Upload your design (JPG / PNG)</label>
+    <input id="art" type="file" accept="image/*">
+    <label>Apply design to</label>
+    <select id="artMode"><option value="front">Front only</option><option value="all">All sides</option></select>
+    <div class="lbl" style="margin-top:10px">Preview only – our team checks your artwork before printing. Drag the box to rotate it.</div>
+  </div>
+  <div class="card" style="grid-area:fm">
+    <h2>Box price calculator</h2>
+    <label>Paper type</label><select id="paper"></select>
+    <label>Quantity</label><input id="qty" type="number" step="100" value="1000">
+    <div class="row3">
+      <div><label>Length (cm)</label><input id="l" type="number" step="0.1" value="6"></div>
+      <div><label>Width (cm)</label><input id="w" type="number" step="0.1" value="4"></div>
+      <div><label>Height (cm)</label><input id="h" type="number" step="0.1" value="10"></div>
+    </div>
+    <label>Printing</label><select id="colors"></select>
+    <label>Protective layer</label><select id="coat"></select>
+      <label>Box services</label><div id="svc"></div>
+      <div id="trWrap" style="display:none"><label>Delivery</label><div id="trBox"><label><input type="checkbox" id="tr"> Delivery · نقل</label></div></div>
+  </div>
+  <div class="card" style="grid-area:pr">
+    <div class="lbl">Your price</div>
+    <div class="price" id="total">—</div>
+    <div id="unit" style="font-size:15px"></div>
+    <div id="res"></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Layout on the quarter sheet</h2>
+  <div class="lbl" id="layNote"></div>
+  <div id="svg"></div>
+</div>
+
+
+
+</main>
+
+<script>
+/* ============ geometry from the server (prices and margins never reach the browser) ============ */
+// >>> put your Firebase details here (see README) <<<
+const FIREBASE_PROJECT = 'pixel-pricing';
+const FIREBASE_API_KEY = 'AIzaSyBphBLTqDG5nMZq095RJkOHqZICRjBe3yk';
+const MAIN_SITE = 'https://YOUR-MAIN-SITE.com/';   // your main website (for the menu links and the quote button)
+const site = p => MAIN_SITE.includes('YOUR-') ? '#' : MAIN_SITE.replace(/\/?$/, '/') + p;
+document.querySelectorAll('header a[href]').forEach(a => { const h = a.getAttribute('href'); if (h === 'pricing.php') a.setAttribute('href', './'); else a.setAttribute('href', site(h)); });
+let CFG = {grip:10, edge:5, glue:15, gap:3, tf:1, tuck:13, ear:.7};   // replaced by the published values on load
+const esc = t => String(t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $ = id => document.getElementById(id);
+const fmt = (n, d=0) => Number(n).toLocaleString('en-US', {minimumFractionDigits:d, maximumFractionDigits:d});
+
+/* ============ DRAWING ============ */
+function draw(r) {
+  const c = CFG, o = r.im.best, s = o.sheet, g = c.gap, T = r.im.T, unitW = r.im.unitW, L = r.L, W = r.W, H = r.H;
+  const R = (a, b, da, db, cls) => o.rot
+    ? `<rect class="${cls}" x="${c.edge + b}" y="${c.grip + a}" width="${db}" height="${da}"/>`
+    : `<rect class="${cls}" x="${c.edge + a}" y="${c.grip + b}" width="${da}" height="${db}"/>`;
+  const txt = (a, b, t, fs, cls) => { const x = o.rot ? c.edge + b : c.edge + a, y = o.rot ? c.grip + a : c.grip + b; return `<text class="${cls}" x="${x}" y="${y}" font-size="${fs}" text-anchor="middle" dominant-baseline="middle">${t}</text>`; };
+  let cnt = 0;
+  let v = `<svg viewBox="-4 -4 ${s.w + 8} ${s.h + 8}"><rect class="sh" x="0" y="0" width="${s.w}" height="${s.h}"/>`;
+  v += `<rect class="gr" x="0" y="0" width="${s.w}" height="${c.grip}"/><text class="tp" x="${s.w/2}" y="${c.grip/2}" font-size="6" text-anchor="middle" dominant-baseline="middle">Gripper edge</text>`;
+  v += `<rect class="us" x="${c.edge}" y="${c.grip}" width="${s.w - 2*c.edge}" height="${s.h - c.grip - c.edge}"/>`;
+  for (let k = 0; k < o.cols; k++) {
+    const a0 = k * (unitW + g);
+    const G = c.glue;
+    v += R(a0 + G, 0, L, T, 'tg') + txt(a0 + G + L/2, T/2, 'Lid + tuck', 7, 'tl');                                    // top lid + tuck (front panel, first box)
+    for (let j = 0; j < o.rows; j++) {
+      const b0 = T + j * (H + g);
+      v += R(a0, b0, unitW, H, 'bx');
+      cnt++;
+      v += txt(a0 + G + L/2, b0 + H*.3, cnt, 20, 'tn');
+      [['Front', G + L/2], ['Side', G + L + W/2], ['Back', G + L + W + L/2], ['Side', G + 2*L + W + W/2]].forEach(([nm, cx]) => v += txt(a0 + cx, b0 + H*.65, nm, 6.5, 'tp'));
+      for (const d of [G, G+L, G+L+W, G+2*L+W]) v += R(a0 + d - .3, b0, .6, H, 'ln');   // panel folds
+    }
+    v += R(a0 + G + L + W, T + o.rows*H + (o.rows-1)*g, L, T, 'tg') + txt(a0 + G + L + W + L/2, T + o.rows*H + (o.rows-1)*g + T/2, 'Lid + tuck', 7, 'tl'); // bottom lid + tuck (back panel, last box)
+  }
+  return v + '</svg>';
+}
+
+/* ============ PRICE (calculated on the server) ============ */
+let reqId = 0, tm;
+let PUB = null;
+async function loadPublic() {
+  const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT}/databases/(default)/documents/config/public?key=${FIREBASE_API_KEY}`;
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const d = await r.json();
+  return JSON.parse(d.fields.json.stringValue);
+}
+
+/* ===== CALC START: the published table already contains the selling rates (profit folded in per quantity tier) ===== */
+function imposeBox(L, W, H) {
+  const g = PUB.geo, gap = g.gap, T = W * g.tf + g.tuck, unitW = 2 * (L + W) + g.glue;
+  let best = null;
+  for (const s of PUB.sheets) {
+    const a = s.w - 2 * g.edge, b = s.h - g.grip - g.edge;
+    for (const rot of [0, 1]) {
+      const A = rot ? b : a, B = rot ? a : b;
+      const cols = Math.floor((A + gap) / (unitW + gap)), rows = Math.floor((B - 2 * T + gap) / (H + gap));
+      if (cols < 1 || rows < 1) continue;
+      const ups = cols * rows, area = s.w * s.h;
+      if (!best || ups > best.ups || (ups === best.ups && area < best.area)) best = {ups, cols, rows, rot, sheet: s, area, T, unitW};
+    }
+  }
+  return best;
+}
+function calcPublic(i) {
+  const c = PUB, r = c.rates;
+  const L = Number(i.l || 0) * 10, W = Number(i.w || 0) * 10, H = Number(i.h || 0) * 10, qty = Math.floor(Number(i.qty || 0));
+  const paper = c.papers.find(x => x.id === i.paper), col = c.colors.find(x => x.id === i.colors), coat = c.coat.find(x => x.id === i.coat);
+  if (!paper || !col || !coat) return {error: 'Please complete all fields.'};
+  if (!(L >= 10 && W >= 10 && H >= 10 && L <= 400 && W <= 400 && H <= 400)) return {error: 'Enter length, width and height between 1 and 40 cm.'};
+  if (!(qty >= c.min_qty)) return {error: `Minimum quantity is ${c.min_qty} boxes.`};
+  const im = imposeBox(L, W, H);
+  if (!im) return {error: 'This size does not fit on our quarter sheet. Please contact us for a custom quote.'};
+  const t = c.tiers.find(x => qty >= x.from && (x.to === null || x.to === undefined || qty <= x.to));
+  if (!t) return {error: 'Please contact us for a quote on this quantity.'};
+  const ups = im.ups, SL = im.sheet.w / 10, SW = im.sheet.h / 10, plates = col.plates, k = t.r;
+  const M0 = qty / ups + r.makeready + Math.ceil(qty / ups * r.waste_pct / 100);   // sheets (سحبات)
+  const M = Math.max(M0, r.min_sheets);                                           // minimum run
+  const K = t.ton[paper.id] * SL * SW * paper.gsm / 1e10;                         // price of one sheet
+  const cr = t.coat[coat.id];
+  let total = M * K + plates * k.plate + M * k.print_per_colour * plates + (col.pantone ? plates * k.pantone_extra : 0)
+    + (coat.type === 'area' ? SL * SW * cr / r.area_div * M : M * cr)
+    + k.die_tool + M * k.die_per_sheet + Math.max(qty, r.min_glue) * k.glue_per_box;
+  for (const id of String(i.svc || '').split(',')) { const s = t.svc[id.trim()]; if (s) total += s.fixed + s.per_sheet * M; }
+  if (c.transport_on && i.tr && String(i.tr) !== '0') total += k.transport;
+  const unit = Math.ceil(total / qty * 100 - 1e-9) / 100;
+  return {qty, unit, price: Math.round(unit * qty), ups,
+          layout: {cols: im.cols, rows: im.rows, rot: im.rot, sheet: im.sheet, T: im.T, unitW: im.unitW}};
+}
+/* ===== CALC END ===== */
+
+async function init() {
+  if (FIREBASE_PROJECT.includes('YOUR-')) { $('unit').innerHTML = '<span class="err">Set FIREBASE_PROJECT and FIREBASE_API_KEY at the top of the script (see README).</span>'; return; }
+  try { PUB = await loadPublic(); }
+  catch (e) { $('unit').innerHTML = '<span class="err">Could not load prices, please try again later.</span>'; return; }
+  CFG = PUB.geo;
+  const fill = (id, list, sel) => $(id).innerHTML = list.map(x => `<option value="${esc(x.id)}"${x.id === sel ? ' selected' : ''}>${esc(x.name)}</option>`).join('');
+  fill('paper', PUB.papers); fill('colors', PUB.colors, 'cmyk4'); fill('coat', PUB.coat);
+  $('svc').innerHTML = PUB.services.map(x => `<label><input type="checkbox" value="${esc(x.id)}"> ${esc(x.name)}</label>`).join('');
+  $('trWrap').style.display = PUB.transport_on ? '' : 'none';
+  $('qty').min = PUB.min_qty;
+  box3d(); run();
+}
+async function run() {
+  const id = ++reqId, q = {};
+  ['paper', 'qty', 'l', 'w', 'h', 'colors', 'coat'].forEach(i => q[i] = $(i).value);
+  q.svc = [...document.querySelectorAll('#svc input:checked')].map(i => i.value).join(',');
+  q.tr = $('tr') && $('tr').checked ? 1 : 0;
+    let r;
+  r = calcPublic(q);
+  if (id === reqId) show(r);
+}
+function show(r) {
+  if (r.error) {
+    $('total').textContent = '—'; $('unit').innerHTML = '<span class="err">' + r.error + '</span>'; $('res').innerHTML = '';
+    $('svg').innerHTML = ''; $('layNote').textContent = ''; return;
+  }
+  const y = r.layout, d = {im: {best: {cols: y.cols, rows: y.rows, rot: y.rot, sheet: y.sheet}, T: y.T, unitW: y.unitW},
+    L: +$('l').value * 10, W: +$('w').value * 10, H: +$('h').value * 10, ups: r.ups};
+  $('total').textContent = fmt(r.price) + ' EGP';
+  $('unit').textContent = fmt(r.unit, 2) + ' EGP per box × ' + fmt(r.qty) + ' boxes';
+  $('res').innerHTML = `<table><tr><td>Boxes per quarter sheet</td><td>${r.ups} (${y.cols} × ${y.rows}) on ${y.sheet.n} cm</td></tr>
+    <tr><td>Box size (L × W × H)</td><td>${fx(d.L/10)} × ${fx(d.W/10)} × ${fx(d.H/10)} cm</td></tr></table>
+    <p><a class="btn" href="${site('contact.php')}" style="text-decoration:none">Request this quote</a></p>`;
+  $('layNote').textContent = `Each numbered rectangle is one box laid flat (${fmt(y.unitW/10, 1)} cm wide, ${fx(d.H/10)} cm high). Pink = the lid + tuck flap: only the first and last box of each column carry it, the boxes in between fit into each other. Layout: ${y.cols} column(s) × ${y.rows} box(es) = ${r.ups} boxes on one ${y.sheet.n} cm sheet.`;
+  $('svg').innerHTML = draw(d);
+}
+
+/* ============ 3D BOX PREVIEW ============ */
+const fx = v => fmt(v, 1).replace('.0', '');
+let rx = -20, ry = -32, art = '', spin = false, drag = null, mode = 'closed', hg = {y:0, z:0};
+const stage = $('stage'), boxEl = $('box'), flatEl = $('flat');
+const rot = () => boxEl.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+const lidTf = () => `translate3d(0,${hg.y}px,${hg.z}px) rotateX(${mode === 'open' ? -112 : 0}deg)`;
+const dm = (t, c) => `<span class="dm ${c || ''}">${t}</span>`;
+
+function box3d() {
+  const n = id => Math.min(Math.max(+$(id).value || 0, .5), 60);
+  const L = n('l'), W = n('w'), H = n('h'), all = $('artMode').value === 'all', artOn = k => art && (all || k === 'front');
+  $('chips').innerHTML = `<span>L ${fx(L)} cm</span><span>W ${fx(W)} cm</span><span>H ${fx(H)} cm</span>`;
+  const css = art ? `url("${art}")` : 'none';
+  boxEl.style.setProperty('--art', css); flatEl.style.setProperty('--art', css);
+  if (mode === 'flat') { boxEl.style.display = 'none'; flatEl.style.display = 'block'; return drawFlat(L, W, H, artOn); }
+  flatEl.style.display = 'none'; boxEl.style.display = 'block';
+  const s = 170 / Math.max(L, W, H), a = v => v * s, tk = CFG.tuck / 10;
+  hg = {y: -a(H)/2, z: a(W)/2};
+  const F = (k, w, h, tf, inner, mt, org) => `<div class="face f-${k}" style="width:${a(w)}px;height:${a(h)}px;margin:${mt ?? -a(h)/2}px 0 0 ${-a(w)/2}px;transform:${tf};${org ? 'transform-origin:' + org : ''}"><div class="out${artOn(k) ? ' art' : ''}">${inner || ''}</div><div class="in"></div></div>`;
+  boxEl.innerHTML =
+    F('front', L, H, `translateZ(${a(W)/2}px)`, (art ? '' : '<span class="ph">Your design</span>') + dm('L ' + fx(L) + ' cm') + dm('H ' + fx(H) + ' cm', 'v')) +
+    F('back', L, H, `rotateY(180deg) translateZ(${a(W)/2}px)`) +
+    F('right', W, H, `rotateY(90deg) translateZ(${a(L)/2}px)`, dm('W ' + fx(W) + ' cm')) +
+    F('left', W, H, `rotateY(-90deg) translateZ(${a(L)/2}px)`) +
+    F('bottom', L, W, `rotateX(-90deg) translateZ(${a(H)/2}px)`) +
+    `<div id="hinge" style="transform:${lidTf()}">` + F('lid', L, W, 'rotateX(90deg)', dm(fx(L) + ' × ' + fx(W)), -a(W), '50% 100%') +
+    F('tongue', L * .94, tk, `translateZ(${-a(W) + 1.5}px)`, '', 0) + '</div>';
+  rot();
+}
+
+function drawFlat(L, W, H, artOn) {
+  const c = CFG, G = c.glue / 10, tk = c.tuck / 10, E = W * c.ear, F = W + tk, tw = G + 2*(L+W), th = H + 2*F;
+  const s = Math.min(Math.max(stage.clientWidth - 24, 200) / tw, 300 / th), a = v => (v*s).toFixed(1);
+  const P = (x, y, w, h, cls, k, label, st) => `<div class="fp ${cls}${artOn(k) ? ' art' : ''}" style="left:${a(x)}px;top:${a(y)}px;width:${a(w)}px;height:${a(h)}px;${st || ''}">${label ? dm(label) : ''}</div>`;
+  const xs = [G, G + L, G + L + W, G + 2*L + W];   // front, side, back, side
+  let h = `<div style="position:relative;width:${a(tw)}px;height:${a(th)}px">`;
+  h += P(0, F, G, H, 'glue', 'x', '', `clip-path:polygon(100% 0,0 ${a(.6)}px,0 calc(100% - ${a(.6)}px),100% 100%)`);
+  [['front', L, 'Front · L ' + fx(L)], ['side', W, 'W ' + fx(W)], ['back', L, 'Back · L ' + fx(L)], ['side', W, 'W ' + fx(W)]]
+    .forEach(([k, w, lb], i) => h += P(xs[i], F, w, H, '', k, lb));
+  h += P(xs[0], tk, L, W, 'flap', 'x', 'Top lid') + P(xs[0] + L*.02, 0, L*.96, tk, 'flap tuck', 'x', '');
+  h += P(xs[2], F + H, L, W, 'flap', 'x', 'Bottom lid') + P(xs[2] + L*.02, F + H + W, L*.96, tk, 'flap tuckb', 'x', '');
+  for (const i of [1, 3]) {
+    h += P(xs[i], F - E, W, E, 'flap', 'x', '', 'clip-path:polygon(0 100%,15% 0,85% 0,100% 100%)');
+    h += P(xs[i], F + H, W, E, 'flap', 'x', '', 'clip-path:polygon(0 0,15% 100%,85% 100%,100% 0)');
+  }
+  flatEl.innerHTML = h + '</div>';
+}
+
+function setView(x, y) { spin = false; $('spinBtn').classList.remove('on'); boxEl.style.transition = 'transform .5s'; rx = x; ry = y; rot(); setTimeout(() => boxEl.style.transition = '', 520); }
+function setMode(m) {
+  const was = mode; mode = m; spin = false; $('spinBtn').classList.remove('on');
+  document.querySelectorAll('#modes button').forEach(b => b.classList.toggle('on', b.dataset.m === m));
+  $('views').style.display = m === 'flat' ? 'none' : 'flex';
+  if (m === 'flat' || was === 'flat') box3d();
+  else $('hinge').style.transform = lidTf();
+  if (m !== 'flat') setView(m === 'open' ? -35 : -20, m === 'open' ? -150 : -32);
+}
+document.querySelectorAll('#modes button').forEach(b => b.onclick = () => setMode(b.dataset.m));
+const VIEWS = {front:[0, 0], side:[0, -90], top:[-90, 0]};
+document.querySelectorAll('.views button[data-v]').forEach(b => b.onclick = () => setView(...VIEWS[b.dataset.v]));
+$('spinBtn').onclick = e => { spin = !spin; e.target.classList.toggle('on', spin); };
+(function tick() { if (spin && !drag) { ry += .4; rot(); } requestAnimationFrame(tick); })();
+stage.addEventListener('pointerdown', e => { drag = {x:e.clientX, y:e.clientY}; stage.setPointerCapture(e.pointerId); boxEl.style.transition = ''; });
+stage.addEventListener('pointermove', e => { if (!drag) return; ry += (e.clientX - drag.x) * .6; rx = Math.max(-90, Math.min(90, rx - (e.clientY - drag.y) * .6)); drag = {x:e.clientX, y:e.clientY}; rot(); });
+['pointerup', 'pointercancel'].forEach(t => stage.addEventListener(t, () => drag = null));
+$('art').addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (!f) { art = ''; box3d(); return; }
+  const rd = new FileReader(); rd.onload = () => { art = rd.result; box3d(); }; rd.readAsDataURL(f);
+});
+$('artMode').addEventListener('input', box3d);
+const later = () => { box3d(); clearTimeout(tm); tm = setTimeout(run, 350); };
+['paper', 'qty', 'l', 'w', 'h', 'colors', 'coat'].forEach(i => $(i).addEventListener('input', later));
+$('svc').addEventListener('input', later);
+if ($('tr')) $('tr').addEventListener('input', later);
+init();
+</script>
+</body>
+</html>
